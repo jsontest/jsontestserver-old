@@ -34,8 +34,7 @@ public class JsontestserverServlet extends HttpServlet {
 		String service = req.getParameter("service");
 		if (service == null) {
 			System.out.println("No service defined, reading service from request URL.");
-			String service_url = req.getRequestURL().toString();
-			service = service_url.substring(0, service_url.indexOf("."));
+			service = req.getRequestURL().toString();
 			service.toLowerCase();
 		}
 		else {
@@ -57,7 +56,7 @@ public class JsontestserverServlet extends HttpServlet {
 		String response_data = null;
 		
 		try {
-			if (service.equals("ip")) {
+			if (service.contains("ip")) {
 				//Send back the user's IP address.
 				response_json.put("ip", req.getRemoteAddr());
 			}
@@ -76,6 +75,9 @@ public class JsontestserverServlet extends HttpServlet {
 						break;
 					}
 					else if ((header_name.toLowerCase()).startsWith("x-zoo")) {
+						break;
+					}
+					else if ((header_name.toLowerCase()).startsWith("x-google")) {
 						break;
 					}
 					
