@@ -1,6 +1,7 @@
 package com.jsontest;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Enumeration;
 
 import javax.servlet.http.*;
@@ -85,10 +86,26 @@ public class JsontestserverServlet extends HttpServlet {
 				}
 			}
 			else if (service.contains("code")) {
+				//Arbitrary JS Code
+				String ip = req.getRemoteAddr();
+				
+				response_data = "alert(\"Your IP: " + ip + "\");";
+				
+				//If there is a JSONP callback, include a function.
+				if (callback != null) {
+					response_json.put("ip", ip);
+					response_data += callback + "(" + response_json.toString(3) + ");";
+				}
 				
 			}
 			else if (service.contains("date") || service.contains("time")) {
-				
+				//Date and time
+				Date current_date = new Date();
+				String date = new java.text.SimpleDateFormat("MM-dd-yyyy").format(current_date);
+				String time = new java.text.SimpleDateFormat("hh:mm:ss aa").format(current_date);
+				response_json.put("date", date);
+				response_json.put("time", time);
+				response_json.put("milliseconds", current_date.getTime());
 			}
 			else if (service.contains("echo")) {
 				
