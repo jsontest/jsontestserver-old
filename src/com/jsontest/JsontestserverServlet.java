@@ -49,11 +49,11 @@ public class JsontestserverServlet extends HttpServlet {
 		 * Most services return JSON, so they can write directly to 
 		 * the JSONObject response_json. However, some services need 
 		 * to directly set the response, so they can write their responses 
-		 * directly to a String.
+		 * directly to the String response_data.
 		 */
 		
 		JSONObject response_json = new JSONObject();
-		String response_data = null;
+		String response_data = "";
 		
 		try {
 			if (service.contains("ip")) {
@@ -107,7 +107,9 @@ public class JsontestserverServlet extends HttpServlet {
 			}
 		}
 		catch (JSONException e) {
-			System.err.println(e.getMessage());
+			//JSONObject.put throws a JSONException if the key is null. That shouldn't 
+			//happen, but we still have to catch the exception.
+			System.err.println("JSONException.put() may have thrown an error. " + e.getMessage());
 		}
 		
 		
@@ -124,6 +126,26 @@ public class JsontestserverServlet extends HttpServlet {
 		String mime_param = req.getParameter("mime");
 		
 		
+		/**
+		 * If the String response_data is blank, that means we need to get 
+		 * the response_json JSONObject, convert it to a String, and send it back to 
+		 * the user. If it isn't blank, then the service above had to directly set 
+		 * the response content and we can send back response_data as it is.
+		 */
+		if (response_data.equals("")) {
+			try {
+				response_data = response_json.toString(3);
+			}
+			catch (JSONException e) {
+				System.err.println("Unable to indent response JSON. " + e.getMessage());
+				response_data = response_json.toString();
+			}
+		}
 		
-	}
-}
+		//And finally send it off to the user.
+		resp.getWriter().println(response_data);
+		
+
+		
+	}//end doGet
+}//end file
