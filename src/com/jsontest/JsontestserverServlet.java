@@ -98,15 +98,6 @@ public class JsontestserverServlet extends HttpServlet {
 				}
 				
 			}
-			else if (service.contains("date") || service.contains("time")) {
-				//Date and time
-				Date current_date = new Date();
-				String date = new java.text.SimpleDateFormat("MM-dd-yyyy").format(current_date);
-				String time = new java.text.SimpleDateFormat("hh:mm:ss aa").format(current_date);
-				response_json.put("date", date);
-				response_json.put("time", time);
-				response_json.put("milliseconds", current_date.getTime());
-			}
 			else if (service.contains("echo")) {
 				//Echo back a JSON object based on the URI.
 				String request_uri = req.getRequestURI().substring(1);
@@ -137,7 +128,15 @@ public class JsontestserverServlet extends HttpServlet {
 				response_json.put("cookie", "Cookie added with name jsontestdotcom and value " + millis);
 			}
 			else if (service.contains("malform")) {
+				//Send back malformed/damaged JSON
+				//We'll chop off the last } symbol.
+				JSONObject malformed_ip = new JSONObject();
+				malformed_ip.put("ip", req.getRemoteAddr());
+				String malformed_data = malformed_ip.toString();
+				malformed_data = malformed_data.trim();
+				malformed_data = malformed_data.substring(0, malformed_data.length() - 1);
 				
+				response_data = malformed_data;
 			}
 			else if (service.contains("validate")) {
 				//Validate the incoming JSON
@@ -185,6 +184,15 @@ public class JsontestserverServlet extends HttpServlet {
 					response_json.put("validate", new Boolean(false));
 					response_json.put("error", e.getMessage());
 				}
+			}
+			else if (service.contains("date") || service.contains("time")) {
+				//Date and time
+				Date current_date = new Date();
+				String date = new java.text.SimpleDateFormat("MM-dd-yyyy").format(current_date);
+				String time = new java.text.SimpleDateFormat("hh:mm:ss aa").format(current_date);
+				response_json.put("date", date);
+				response_json.put("time", time);
+				response_json.put("milliseconds", current_date.getTime());
 			}
 			else {
 				//None of the above services were a match. Send back an error message.
