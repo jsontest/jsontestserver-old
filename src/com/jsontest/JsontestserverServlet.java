@@ -140,7 +140,51 @@ public class JsontestserverServlet extends HttpServlet {
 				
 			}
 			else if (service.contains("validate")) {
+				//Validate the incoming JSON
 				
+				try {				
+					String incoming_json = req.getParameter("json");
+					
+					if (incoming_json == null) {
+						throw new JSONException("No JSON to validate. Please post JSON to validate via the json parameter.");
+					}
+					
+					JSONObject json_object = new JSONObject(incoming_json);
+					
+					/**
+					 * If we've managed to get to this point, the JSONHandler was able 
+					 * to parse the JSON string into a JSON object. Therefore, validate 
+					 * should be true.
+					 */
+					response_json.put("validate", new Boolean(true));
+					
+					/**
+					 * Record the size of the JSON object.
+					 */
+					int size = json_object.length();
+					response_json.put("size", size);
+					
+					/**
+					 * If the JSON object contains key:value pairs, note that it is not 
+					 * empty. If the object does not contain any pairs, note that it is empty.
+					 */
+					if (size > 0) {
+						response_json.put("empty", new Boolean(false));
+					}
+					else {
+						response_json.put("empty", new Boolean(true));
+					}
+				}
+				catch (JSONException e) {
+					/**
+					 * A JSONException occurred, which means that the JSON string 
+					 * had something wrong with it. Note the error, and note that validation 
+					 * failed.
+					 */
+					System.out.println(e.getMessage());
+					response_json.put("validate", new Boolean(false));
+					response_json.put("error", e.getMessage());
+				}
 			}
 			else {
 				//None of the above services were a match. Send back an error message.
