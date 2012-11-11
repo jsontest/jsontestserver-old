@@ -108,10 +108,33 @@ public class JsontestserverServlet extends HttpServlet {
 				response_json.put("milliseconds", current_date.getTime());
 			}
 			else if (service.contains("echo")) {
+				//Echo back a JSON object based on the URI.
+				String request_uri = req.getRequestURI().substring(1);
+				String[] components = request_uri.split("/");
 				
+				for (int i = 0; i < components.length; i++) {
+					String key = components[i];
+					String value = "";
+					try {
+						value = components[i + 1];
+					}
+					catch (ArrayIndexOutOfBoundsException e) {
+						//If this exception is thrown, that means there are an odd number of tokens
+						//in the request url (in other terms, there is a key value specified, but no 
+						//value). It's OK, because we'll just put a blank string into the value component.
+					}
+					response_json.put(key, value);
+					i++;
+				}
 			}
 			else if (service.contains("cookie")) {
+				//Set a cookie.
+				String millis = ((Long)(new Date()).getTime()).toString();
+				Cookie cookie = new Cookie("jsontestdotcom", millis);
+				cookie.setMaxAge(2 * 7 * 24 * 60 * 60);//Two weeks to expire, in seconds.
+				resp.addCookie(cookie);
 				
+				response_json.put("cookie", "Cookie added with name jsontestdotcom and value " + millis);
 			}
 			else if (service.contains("malform")) {
 				
