@@ -121,6 +121,10 @@ public class JsontestserverServlet extends HttpServlet {
 			}
 			else {
 				//None of the above services were a match. Send back an error message.
+				response_json.put("error", "You did not specify a valid JSONTest.com service.");
+				response_json.put("info", "Visit jsontest.com for a list of services available.");
+				response_json.put("url", "jsontest.com");
+				response_json.put("version", "1.0 Production");
 			}
 		}
 		catch (JSONException e) {
@@ -141,7 +145,33 @@ public class JsontestserverServlet extends HttpServlet {
 		 * JSONP responses.
 		 */
 		String mime_param = req.getParameter("mime");
+		String content_type = "text/plain";
+		if ("1".equals(mime_param)) {
+			content_type = "application/json";
+		}
+		else if ("2".equals(mime_param)) {
+			content_type = "application/javascript";
+		}
+		else if ("3".equals(mime_param)) {
+			content_type = "text/javascript";
+		}
+		else if ("4".equals(mime_param)) {
+			content_type = "text/html";
+		}
+		else if ("5".equals(mime_param)) {
+			content_type = "text/plain";
+		}
+		else {
+			//The user didn't set up a requested MIME type. We'll set it for them.
+			if (callback == null) {
+				content_type = "application/json";
+			}
+			else {
+				content_type = "application/javascript";
+			}
+		}
 		
+		resp.setContentType(content_type);
 		
 		/**
 		 * If the String response_data is blank, that means we need to get 
@@ -150,12 +180,18 @@ public class JsontestserverServlet extends HttpServlet {
 		 * the response content and we can send back response_data as it is.
 		 */
 		if (response_data.equals("")) {
+			
 			try {
 				response_data = response_json.toString(3);
 			}
 			catch (JSONException e) {
 				System.err.println("Unable to indent response JSON. " + e.getMessage());
 				response_data = response_json.toString();
+			}
+			
+			//If the user requested a callback, we'll wrap the callback here
+			if (callback != null) {
+				response_data = callback + "(" + response_data + ");";
 			}
 		}
 		
