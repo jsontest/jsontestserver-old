@@ -171,7 +171,24 @@ public class JsontestserverServlet extends HttpServlet {
 			}
 		}
 		
+		//And finally set the content type.
 		resp.setContentType(content_type);
+		
+		
+		/**
+		 * Set up the Access-Control-Allow-Origin header. 
+		 * 
+		 * The user may shut this header off, but it is required for 
+		 * most web apps to be able to use external services.
+		 */
+		if ("false".equals(req.getParameter("alloworigin"))) {
+			//Do nothing, the user does not want this header.
+			//Make a note in logging, since this is a very unusual request.
+			System.out.println("Access-Control-Allow-Origin header turned off. User's web application may not work.");
+		}
+		else {
+			resp.setHeader("Access-Control-Allow-Origin", "*");
+		}
 		
 		/**
 		 * If the String response_data is blank, that means we need to get 
